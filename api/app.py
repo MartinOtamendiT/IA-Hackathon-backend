@@ -4,10 +4,12 @@ import typing_extensions as typing
 import google.generativeai as genai
 from dotenv import load_dotenv
 from flask import Flask, request, render_template, session, jsonify
+from flask_cors import CORS
 from flask_session import Session
 
 #Configuración de la aplicación Flask
 app = Flask(__name__)
+CORS(app) #Esto habilita CORS para todas las rutas y orígenes.
 #Session(app)
 
 #Carga de API Key de Gemini desde el entorno.
