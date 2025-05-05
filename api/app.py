@@ -12,6 +12,44 @@ app = Flask(__name__)
 CORS(app) #Esto habilita CORS para todas las rutas y orígenes.
 #Session(app)
 
+#Esquema de respuesta de la receta.
+response_schema_recipe = {
+    "type": "object",
+    "properties": {
+        "recipe_name": {
+            "type": "string",
+            "description": "The name of the generated recipe."
+        },
+        "ingredients": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "The ingredients to prepare the recipe."
+        },
+        "instructions": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "The detailed instructions for preparing the recipe."
+        },
+        "recommendations": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "A piece of advice from the chef."
+        }
+    },
+    "required": [
+        "recipe_name",
+        "ingredients",
+        "instructions",
+        "recommendations"
+    ]
+}
+
 #Carga de API Key de Gemini desde el entorno.
 load_dotenv()
 GEMINI_API_KEY = os.environ['GEMINI_API_KEY']
@@ -19,8 +57,9 @@ GEMINI_API_KEY = os.environ['GEMINI_API_KEY']
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-2.0-flash")
 gen_config = genai.types.GenerationConfig(
-    temperature = 0.8,
-    response_mime_type='application/json',
+    temperature = 1.0,
+    response_mime_type = 'application/json',
+    response_schema = response_schema_recipe
 )
 
 @app.route('/')
@@ -42,7 +81,7 @@ def gen_recipe():
     try:
         response = model.generate_content(contents=prompt, generation_config=gen_config)
         recipe_json = json.loads(response.text)
-        #print(recipe_json)
+        print(recipe_json)
 
         recipe_name = recipe_json.get("recipe_name")
         final_ingredients = recipe_json.get("ingredients")
